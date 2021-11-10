@@ -20,7 +20,14 @@ class User(AbstractUser):
 
     # First Name and Last Name do not cover name patterns
     # around the globe.
-    name = models.CharField(_("Name of User"), blank=True, null=True, max_length=255)
+    # name = models.CharField(_("Name of User"), blank=True, null=True, max_length=255)
+    height = models.CharField(_("Height"), blank=True, null=True, max_length=255)
+    weight = models.CharField(_("Weight"), blank=True, null=True, max_length=255)
+    profile_picture = models.ImageField(upload_to='user_profile_pictures', blank=True, null=True)
 
     def get_absolute_url(self):
         return reverse("users:detail", kwargs={"username": self.username})
+
+    @property
+    def name(self):
+        return self.first_name + " " + self.last_name
