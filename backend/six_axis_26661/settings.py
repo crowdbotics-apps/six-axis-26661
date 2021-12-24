@@ -51,6 +51,7 @@ LOCAL_APPS = [
     'home',
     'modules',
     'users.apps.UsersConfig',
+    'payment',
 ]
 THIRD_PARTY_APPS = [
     'rest_framework',
@@ -229,6 +230,16 @@ if USE_S3:
     MEDIA_URL = '/mediafiles/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
 
+STRIPE_LIVE_PUBLIC_KEY = env.str('STRIPE_LIVE_PUBLIC_KEY',
+                                 'pk_live_51K4RtLLQ9Zphz0g195IzTZpawqgnpFy7f8ZosnKhc7x2RGJi4jjks0La2yUM0ep4bV9nnTW1l8JZdnMSN0Bk3xTA0035ZNVT7j')
+STRIPE_LIVE_SECRET_KEY = env.str('STRIPE_LIVE_SECRET_KEY',
+                                 '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')
+STRIPE_TEST_PUBLIC_KEY = env.str('STRIPE_TEST_PUBLIC_KEY',
+                                 'pk_test_51K4RtLLQ9Zphz0g1b95WgW3oSIw32zSEkyfm1Kj8gY3iFYQNkZJFaEFjEgATVT52u7aEok1Qp6A3UowGNdbnPr0T00TYEW5lqr')
+STRIPE_TEST_SECRET_KEY = env.str('STRIPE_TEST_SECRET_KEY',
+                                 'sk_test_51K4RtLLQ9Zphz0g1wsBWmR5M3y1u23L1B12djj7hQ1Z9Oux5KbWDMHBoTkWFLbkx4cvLIntsuK4u0ueUK8DOJtqq00SyqqVj9Y')
+STRIPE_LIVE_MODE = False
+DJSTRIPE_WEBHOOK_VALIDATION = 'retrieve_event'
 
 
 # start fcm_django push notifications
