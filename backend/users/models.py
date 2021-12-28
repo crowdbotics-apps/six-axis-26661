@@ -24,8 +24,6 @@ class User(AbstractUser):
     height = models.CharField(_("Height"), blank=True, null=True, max_length=255)
     weight = models.CharField(_("Weight"), blank=True, null=True, max_length=255)
     profile_picture = models.ImageField(upload_to='user_profile_pictures', blank=True, null=True)
-    stripe_customer_id = models.CharField(max_length=150, null=True, blank=True)
-    is_subscribe = models.BooleanField(default=False)
 
     def get_absolute_url(self):
         return reverse("users:detail", kwargs={"username": self.username})
