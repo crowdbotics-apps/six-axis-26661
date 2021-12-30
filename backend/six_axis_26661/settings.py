@@ -52,6 +52,7 @@ LOCAL_APPS = [
     'modules',
     'users.apps.UsersConfig',
     'payment',
+    'workout',
 ]
 THIRD_PARTY_APPS = [
     'rest_framework',
