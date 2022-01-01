@@ -1,14 +1,15 @@
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // import Preference from 'react-native-preference';
 import Qs from 'qs';
 
 // import { showErrorMsg } from '../utils'
 
 const ROOT_URL = __DEV__
-  ? 'https://six-axis-26661.botics.co/api'
-  : 'https://six-axis-26661.botics.co/api';
+  ? 'https://six-axis-26661.botics.co'
+  : 'https://six-axis-26661.botics.co';
   
-const BASE_URL = `${ROOT_URL}/v1`;
+const BASE_URL = `${ROOT_URL}`;
 
 const client = axios.create({
   baseURL: BASE_URL,
@@ -21,14 +22,16 @@ const client = axios.create({
 client.interceptors.request.use(
   async (config) => {
     const requestConfig = config;
-    console.log("🚀 ~ file: config.js ~ line 24 ~ requestConfig", requestConfig)
-    let authToken = null
-    // let authToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxMGI3N2NmYzI5ZDczMGJjNDYyOWUwOSIsImlhdCI6MTYyOTc4Mjg5MSwiZXhwIjoxNjMwMzg3NjkxfQ.sf0rXBhq7fEm41K9w-AiZj7kiQOOKn8UYwAMQU--HXU"
+    let authToken = await AsyncStorage.getItem("authToken")
+    if(authToken){
+      authToken = JSON.parse(authToken)
+    }
     if (authToken) {
       requestConfig.headers = {
-        'Authorization': `Bearer ${authToken}`,
+        'Authorization': `token ${authToken}`,
       };
     }
+    console.log("🚀 ~ file: config.js ~ line 24 ~ requestConfig", requestConfig)
     requestConfig.paramsSerializer = params => {
       return Qs.stringify(params, {
         arrayFormat: "brackets",

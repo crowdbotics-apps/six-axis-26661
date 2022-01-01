@@ -6,7 +6,7 @@ import {
   Image,
   Alert,
   TouchableHighlight,
-  Keyboard
+  Keyboard,
 } from 'react-native';
 import {StackActions} from '@react-navigation/native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
@@ -48,7 +48,13 @@ const Auth = ({navigation}) => {
     if (!EmailVerificationRegex.test(signUpEmail))
       return alert('Please enter valid email');
     if (!signUpPassword) return alert('Please enter your password');
-    if (signUpPassword.length < 6) return alert('Password too short');
+    if (signUpPassword.length < 8) return alert('Password too short');
+    if (/[a-zA-Z]/.test(signUpPassword) === false)
+      return alert('Password must contain alphabet character.');
+    if (/[0-9]/.test(signUpPassword) === false)
+      return alert('Password must contain numeric character.');
+    if (/(?=.*[!@#$%^&*])/.test(signUpPassword) === false)
+      return alert('Password must contain special character.');
     signUp();
   };
 
@@ -127,7 +133,12 @@ const Auth = ({navigation}) => {
   };
 
   return (
-    <TouchableHighlight activeOpacity={1} onPress={()=>{Keyboard.dismiss()}} style={{flex: 1}}>
+    <TouchableHighlight
+      activeOpacity={1}
+      onPress={() => {
+        Keyboard.dismiss();
+      }}
+      style={{flex: 1}}>
       <View style={styles.container}>
         {AppLoading.renderLoading(loading)}
         <View style={styles.logoContainer}>

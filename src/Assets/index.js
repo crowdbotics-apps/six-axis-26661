@@ -12,5 +12,12 @@ const images = {
     pushUpMan: require('./pushUpMan.png'),
     bluethoothWorkout: require('./bluethoothWorkout.png'),
     arrowDown: require('./arrowDown.png'),
+    logOut: require('./logOut.png'),
+    person: require('./person.png'),
+    setting: require('./setting.png'),
+    payment: require('./payment.png'),
+    history: require('./history.png'),
+    camera: require('./camera.png'),
+    changePassword: require('./changePassword.png'),
 }
 export default images;

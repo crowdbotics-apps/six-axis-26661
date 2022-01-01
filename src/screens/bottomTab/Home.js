@@ -1,5 +1,6 @@
 import React, {useState,useEffect} from 'react';
 import {View, Text, StyleSheet, Image, FlatList} from 'react-native';
+import {useIsFocused} from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import images from '../../Assets';
@@ -8,8 +9,10 @@ import colors from '../../utils/colors';
 import RadioButton from '../../components/radioButton';
 
 const Home = props => {
+  const focused = useIsFocused();
   const [radioButtonCheck, setRadioButtonCheck] = useState(0);
   const [userData, setUserData] = useState(null);
+  const [profileUrl, setProfileUrl] = useState(null);
   const [workOutList, setWorkOutList] = useState([
     '',
     '',
@@ -29,11 +32,15 @@ const Home = props => {
   ]);
 
   useEffect(() => {
-    setUser()
-  },[])
+    if (focused) setUser();
+  },[focused])
   const setUser=async()=>{
     let user = await AsyncStorage.getItem('user');
     user = JSON.parse(user);
+    if(user.profile_picture){
+    let profileString = user.profile_picture.split("?")
+    setProfileUrl(profileString[0])
+    }
     setUserData(user);
   }
 
@@ -70,7 +77,7 @@ const Home = props => {
         <View style={styles.workoutContainer}>
           <View style={styles.profileImageContainer}>
             <Image
-              source={images.pofileImage}
+              source={profileUrl?{uri:profileUrl}:images.person}
               style={styles.profileImageStyle}
             />
           </View>
@@ -164,9 +171,9 @@ const styles = StyleSheet.create({
     borderRadius: Utils.resHeight(150),
     width: Utils.resWidth(300),
     height: Utils.resWidth(300),
-    padding: 2,
     marginTop: Utils.resHeight(70),
     alignSelf: 'center',
+    overflow:"hidden"
   },
   profileImageStyle: {
     height: '100%',

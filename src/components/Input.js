@@ -11,6 +11,7 @@ const Input = props => {
       onChangeText={props.onChangeText}
       value={props.value}
       keyboardType={props.keyboardType}
+      editable={props.editable}
     />
   );
 };

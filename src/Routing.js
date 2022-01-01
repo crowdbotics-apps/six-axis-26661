@@ -15,6 +15,7 @@ const navigator = React.createRef();
 // import ConnectWithOthers from './screens/connectWithOthers';
 import Splash from './screens/splash';
 import Auth from './screens/auth';
+import profileSetup from './screens/profileSetup';
 
 
 // Stacks
@@ -66,6 +67,7 @@ const AsyncValue = async() => {
       <Stack.Screen name="Splash" component={Splash} />
       <Stack.Screen name="Auth" component={Auth} />
       <Stack.Screen name="BottonStack" component={BottonStack} />
+      <Stack.Screen name="profileSetup" component={profileSetup} />
     </Stack.Navigator>
   );
 };

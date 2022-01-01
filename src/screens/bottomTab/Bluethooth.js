@@ -17,6 +17,7 @@ import {
 import BleManager from 'react-native-ble-manager';
 import Geolocation from 'react-native-geolocation-service';
 import LinearGradient from 'react-native-linear-gradient';
+import {useIsFocused} from '@react-navigation/native';
 import RNBluetoothClassic, {
   BluetoothEventType,
 } from 'react-native-bluetooth-classic';
@@ -31,18 +32,23 @@ import colors from '../../utils/colors';
 import {Utils} from '../../utils/Dimensions';
 
 const Bluethooth = props => {
+  const focused = useIsFocused();
   const [modalOpen, setModalOpen] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [list, setList] = useState([]);
-  const [connectedDevice, setConnectedDevice] = useState("");
+  const [connectedDevice, setConnectedDevice] = useState('');
   const [bluethoothList, setBluethoothList] = useState(['', '']);
   const [userData, setUserData] = useState(null);
+  const [profileUrl, setProfileUrl] = useState(null);
   const peripherals = new Map();
   const BleManagerModule = NativeModules.BleManager;
   const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 
   useEffect(() => {
-    setUser();
+    if (focused) setUser();
+  }, [focused]);
+
+  useEffect(() => {
     BleManager.start({showAlert: true});
     // BleManager.retrieveServices();
 
@@ -101,7 +107,7 @@ const Bluethooth = props => {
         handleUpdateValueForCharacteristic,
       );
     };
-  }, []);
+  }, [focused]);
   const startFetchingCurrentLocation = () => {
     Geolocation.getCurrentPosition(
       position => {},
@@ -130,10 +136,11 @@ const Bluethooth = props => {
             console.log('🚀 ~ file: Bluethooth.js ~ line 122 ~ err', err);
           });
       } else {
-        RNBluetoothClassic.requestBluetoothEnabled().then((resp)=>{
-        }).catch((err)=>{
-        alert('Please turn on Bluetooth');
-        })
+        RNBluetoothClassic.requestBluetoothEnabled()
+          .then(resp => {})
+          .catch(err => {
+            alert('Please turn on Bluetooth');
+          });
       }
     } else {
       alert("Bluetooth isn't available on this device");
@@ -178,6 +185,10 @@ const Bluethooth = props => {
   const setUser = async () => {
     let user = await AsyncStorage.getItem('user');
     user = JSON.parse(user);
+    if (user.profile_picture) {
+      let profileString = user.profile_picture.split('?');
+      setProfileUrl(profileString[0]);
+    }
     setUserData(user);
   };
 
@@ -306,20 +317,27 @@ const Bluethooth = props => {
             {item.name}
           </Text>
         </View>
-          <TouchableOpacity
-            onPress={() => {
-                RNBluetoothClassic.pairDevice(item.address).then((response)=>{
-                  setConnectedDevice(item.address)
-                }).catch((err)=>{
-                console.log("🚀 ~ line 313 ~ RNBluetoothClassic.pairDevice ~ err", err)
-                })
-            }}
-            style={[
-              styles.listViewItem,
-              {borderWidth: 1, borderColor: colors.white},
-            ]}>
-            <Text style={styles.listViewItemText}>{item.address == connectedDevice?"Connected":"Connect"}</Text>
-          </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            RNBluetoothClassic.pairDevice(item.address)
+              .then(response => {
+                setConnectedDevice(item.address);
+              })
+              .catch(err => {
+                console.log(
+                  '🚀 ~ line 313 ~ RNBluetoothClassic.pairDevice ~ err',
+                  err,
+                );
+              });
+          }}
+          style={[
+            styles.listViewItem,
+            {borderWidth: 1, borderColor: colors.white},
+          ]}>
+          <Text style={styles.listViewItemText}>
+            {item.address == connectedDevice ? 'Connected' : 'Connect'}
+          </Text>
+        </TouchableOpacity>
         {/* <TouchableOpacity
         onPress={() => {
           RNBluetoothClassic.getConnectedDevices().then((res)=>{
@@ -341,7 +359,10 @@ const Bluethooth = props => {
   return (
     <View style={styles.container}>
       <View style={styles.profileImageContainer}>
-        <Image source={images.pofileImage} style={styles.profileImageStyle} />
+        <Image
+          source={profileUrl ? {uri: profileUrl} : images.person}
+          style={[styles.profileImageStyle, !profileUrl && {tintColor: '#000'}]}
+        />
       </View>
       {userData && (
         <View style={styles.nameContainer}>
@@ -371,7 +392,7 @@ const Bluethooth = props => {
           <ButtonCard image={images.menu} />
         </View>
       </View>
-      <Modal transparent visible={modalOpen}>
+      <Modal animationType="slide" transparent visible={modalOpen}>
         <View style={styles.modalContainer}>
           <Pressable
             style={{flex: 1}}
@@ -494,9 +515,9 @@ const styles = StyleSheet.create({
     borderRadius: Utils.resHeight(150),
     width: Utils.resWidth(300),
     height: Utils.resWidth(300),
-    padding: 2,
     marginTop: Utils.resHeight(70),
     alignSelf: 'center',
+    overflow: 'hidden',
   },
   profileImageStyle: {
     height: '100%',

@@ -4,7 +4,7 @@ import colors from '../utils/colors';
 import {Utils} from '../utils/Dimensions';
 
 const ButtonCard = props => {
-    const {image,ButtonStyle,onPress,imageContainer} = props;
+    const {image,ButtonStyle,onPress,imageContainer,title} = props;
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -12,6 +12,7 @@ const ButtonCard = props => {
       <View style={[styles.ImageContainer,imageContainer]}>
         <Image resizeMode='contain' style={styles.imageStyle} source={image} />
       </View>
+      {title&&<Text style={styles.title}>{title}</Text>}
     </TouchableOpacity>
   );
 };
@@ -48,5 +49,11 @@ const styles = StyleSheet.create({
       height:"100%",
       width:"100%",
       tintColor:colors.white
+  },
+  title:{
+    marginTop:Utils.resHeight(12),
+    color:colors.white,
+    fontSize:Utils.resHeight(16),
+    fontWeight:"bold"
   }
 });
