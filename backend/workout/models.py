@@ -7,15 +7,14 @@ from django.utils.translation import ugettext_lazy as _
 class WorkoutGroup(models.Model):
     SERIES = 0
     CHALLANGE = 1
-    TESTING = 2
+    STANDALONE = 2
     WORKOUT_TYPE_OPTIONS = [
         (SERIES, 'Series'),
         (CHALLANGE, 'Challange'),
-        (TESTING, 'Testing'),
+        (STANDALONE, 'Standalone'),
     ]
 
-    workout_type = models.CharField(_("Workout Type"), choices=WORKOUT_TYPE_OPTIONS, blank=True, null=True,
-                                     max_length=255)
+    workout_type = models.PositiveIntegerField(_("Workout Type"), choices=WORKOUT_TYPE_OPTIONS)
     workout_name = models.CharField(_("workout Name"), blank=True, null=True, max_length=255)
     video_tutorial = models.FileField(upload_to="workout_tutorials", blank=True, null=True)
     need_subscription = models.BooleanField(default=False)

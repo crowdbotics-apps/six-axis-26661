@@ -9,3 +9,10 @@ class WorkoutGroupViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = WorkoutGroup.objects.all()
     serializer_class = WorkoutGroupSerializer
+
+    def get_queryset(self):
+        queryset = self.queryset
+        workout_type = self.request.query_params.get('workout_type')
+        if workout_type is not None:
+            queryset = queryset.filter(workout_type=workout_type)
+        return queryset
