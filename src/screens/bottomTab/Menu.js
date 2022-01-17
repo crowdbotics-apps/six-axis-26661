@@ -13,7 +13,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {StackActions, useIsFocused} from '@react-navigation/native';
 import images from '../../Assets';
 import LinearGradient from 'react-native-linear-gradient';
-import {Utils} from '../../utils/Dimensions';
 //Api
 import {logOut} from '../../API/methods/profile';
 import {changePasswordApi} from '../../API/methods/updateProfile';
@@ -23,6 +22,7 @@ import Input from '../../components/Input';
 import ButtonCard from '../../components/ButtonCard';
 import AppLoading from '../../components/AppLoading';
 //Utils
+import {Utils} from '../../utils/Dimensions';
 import colors from '../../utils/colors';
 const Menu = props => {
   const focused = useIsFocused();
@@ -151,7 +151,11 @@ const Menu = props => {
                 image={images.person}
                 title={'Profile Settings'}
               />
-              <ButtonCard image={images.setting} title={'Account Settings'} />
+              <ButtonCard
+                onPress={() => props.navigation.navigate('AccountSettings')}
+                image={images.setting}
+                title={'Account Settings'}
+              />
             </View>
             <View style={styles.buttonsContainer}>
               <ButtonCard

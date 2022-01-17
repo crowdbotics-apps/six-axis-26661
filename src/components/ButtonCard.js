@@ -1,18 +1,31 @@
 import React from 'react';
-import {Image, Text, StyleSheet, View, TouchableOpacity} from 'react-native';
+import {
+  Image,
+  Text,
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  TextBase,
+} from 'react-native';
 import colors from '../utils/colors';
 import {Utils} from '../utils/Dimensions';
 
 const ButtonCard = props => {
-    const {image,ButtonStyle,onPress,imageContainer,title} = props;
+  const {image, ButtonStyle, onPress, imageContainer, title, titleText} = props;
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      style={[styles.container, ButtonStyle]}>
-      <View style={[styles.ImageContainer,imageContainer]}>
-        <Image resizeMode='contain' style={styles.imageStyle} source={image} />
-      </View>
-      {title&&<Text style={styles.title}>{title}</Text>}
+    <TouchableOpacity onPress={onPress} style={[styles.container, ButtonStyle]}>
+      {titleText ? (
+        <Text style={[styles.title, styles.mainTitle]}>{`$ ${titleText}`}</Text>
+      ) : (
+        <View style={[styles.ImageContainer, imageContainer]}>
+          <Image
+            resizeMode="contain"
+            style={styles.imageStyle}
+            source={image}
+          />
+        </View>
+      )}
+      {title && <Text style={styles.title}>{title}</Text>}
     </TouchableOpacity>
   );
 };
@@ -45,15 +58,19 @@ const styles = StyleSheet.create({
     height: Utils.resHeight(70),
     width: Utils.resHeight(70),
   },
-  imageStyle:{
-      height:"100%",
-      width:"100%",
-      tintColor:colors.white
+  imageStyle: {
+    height: '100%',
+    width: '100%',
+    tintColor: colors.white,
   },
-  title:{
-    marginTop:Utils.resHeight(12),
-    color:colors.white,
-    fontSize:Utils.resHeight(16),
-    fontWeight:"bold"
-  }
+  title: {
+    marginTop: Utils.resHeight(12),
+    color: colors.white,
+    fontSize: Utils.resHeight(16),
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  mainTitle: {
+    fontSize: Utils.resHeight(34),
+  },
 });

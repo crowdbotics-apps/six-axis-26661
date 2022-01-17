@@ -12,6 +12,7 @@ const Input = props => {
       value={props.value}
       keyboardType={props.keyboardType}
       editable={props.editable}
+      maxLength={props.maxLength}
     />
   );
 };

@@ -16,6 +16,8 @@ const navigator = React.createRef();
 import Splash from './screens/splash';
 import Auth from './screens/auth';
 import profileSetup from './screens/profileSetup';
+import AccountSettings from './screens/accountSettings';
+import Subscriptions from './screens/subscriptions';
 
 
 // Stacks
@@ -68,6 +70,8 @@ const AsyncValue = async() => {
       <Stack.Screen name="Auth" component={Auth} />
       <Stack.Screen name="BottonStack" component={BottonStack} />
       <Stack.Screen name="profileSetup" component={profileSetup} />
+      <Stack.Screen name="AccountSettings" component={AccountSettings} />
+      <Stack.Screen name="Subscriptions" component={Subscriptions} />
     </Stack.Navigator>
   );
 };

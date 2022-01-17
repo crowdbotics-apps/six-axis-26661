@@ -19,5 +19,6 @@ const images = {
     history: require('./history.png'),
     camera: require('./camera.png'),
     changePassword: require('./changePassword.png'),
+    subscriptions: require('./subscriptions.png'),
 }
 export default images;
