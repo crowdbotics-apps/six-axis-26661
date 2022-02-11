@@ -34,8 +34,8 @@ export default ButtonCard;
 
 const styles = StyleSheet.create({
   container: {
-    height: Utils.resHeight(150),
-    width: Utils.resHeight(150),
+    height: Utils.resHeight(165),
+    width: Utils.resHeight(165),
     // flexDirection: "row",
     alignItems: 'center',
     justifyContent: 'center',
@@ -66,11 +66,11 @@ const styles = StyleSheet.create({
   title: {
     marginTop: Utils.resHeight(12),
     color: colors.white,
-    fontSize: Utils.resHeight(16),
+    fontSize: Utils.resHeight(15),
     fontWeight: 'bold',
     textAlign: 'center',
   },
   mainTitle: {
-    fontSize: Utils.resHeight(34),
+    fontSize: Utils.resHeight(30),
   },
 });

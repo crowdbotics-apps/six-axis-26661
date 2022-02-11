@@ -8,6 +8,7 @@ import {
   TouchableHighlight,
   Keyboard,
 } from 'react-native';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview';
 import {StackActions} from '@react-navigation/native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -133,166 +134,168 @@ const Auth = ({navigation}) => {
   };
 
   return (
-    <TouchableHighlight
-      activeOpacity={1}
-      onPress={() => {
-        Keyboard.dismiss();
-      }}
-      style={{flex: 1}}>
-      <View style={styles.container}>
-        {AppLoading.renderLoading(loading)}
-        <View style={styles.logoContainer}>
-          <Image
-            resizeMode="contain"
-            style={styles.logoStyle}
-            source={images.gradianLogo}
-          />
-        </View>
-
-        <View style={styles.contentContainer}>
-          <View style={styles.tabShiftContainer}>
-            <TouchableOpacity
-              onPress={() => {
-                setActiveTab(true);
-              }}
-              style={[
-                styles.authButton,
-                {
-                  borderBottomColor: activeTab
-                    ? colors.darkOrange
-                    : colors.grey,
-                },
-              ]}>
-              <Text
-                style={[
-                  styles.authButtonText,
-                  {color: activeTab ? colors.darkOrange : colors.grey},
-                ]}>
-                Sign In
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => {
-                setActiveTab(false);
-              }}
-              style={[
-                styles.authButton,
-                {
-                  borderBottomColor: activeTab
-                    ? colors.grey
-                    : colors.darkOrange,
-                },
-              ]}>
-              <Text
-                style={[
-                  styles.authButtonText,
-                  {color: activeTab ? colors.grey : colors.darkOrange},
-                ]}>
-                Sign Up
-              </Text>
-            </TouchableOpacity>
+    <KeyboardAwareScrollView contentContainerStyle={{flexGrow:1}} style={{flex: 1}}>
+      <TouchableHighlight
+        activeOpacity={1}
+        onPress={() => {
+          Keyboard.dismiss();
+        }}
+        style={{flex: 1}}>
+        <View style={styles.container}>
+          {AppLoading.renderLoading(loading)}
+          <View style={styles.logoContainer}>
+            <Image
+              resizeMode="contain"
+              style={styles.logoStyle}
+              source={images.gradianLogo}
+            />
           </View>
-          {activeTab ? (
-            <View style={styles.inputFieldsContainer}>
-              <Input
-                onChangeText={setSignInEmail}
-                value={signInEmail}
-                Placeholder="E-mail"
-                keyboardType="email-address"
-              />
-              <Input
-                secureTextEntry={true}
-                Placeholder="Password"
-                value={signInPassword}
-                onChangeText={setSignInPassword}
-                InputStyle={{marginTop: Utils.resHeight(35)}}
-              />
-              <View style={styles.socialButtonsContainer}>
-                <Button
-                  ButtonStyle={styles.socialButton}
-                  IconStyle={styles.socialButtonIcon}
-                  Icon={images.fblogo}
-                  titleStyle={styles.socialButtonText}
-                  title={'Sign in with Facebook'}
-                  imageContainer={styles.socialImageContainer}
-                  textContainer={styles.socialButtonTextContainer}
-                />
-                <Button
-                  ButtonStyle={styles.socialButton}
-                  IconStyle={styles.socialButtonIcon}
-                  Icon={images.googleLogo}
-                  titleStyle={styles.socialButtonText}
-                  title={'Sign in with Google'}
-                  imageContainer={styles.socialImageContainer}
-                  textContainer={styles.socialButtonTextContainer}
-                />
-              </View>
-              <Button
-                onPress={() => checkFieldSignIn()}
-                textContainer={styles.textContainer}
-                title={'Sign In'}
-              />
-              <TouchableOpacity style={{marginTop: Utils.resHeight(30)}}>
-                <Text style={styles.passwordText}>Forgot Password?</Text>
+
+          <View style={styles.contentContainer}>
+            <View style={styles.tabShiftContainer}>
+              <TouchableOpacity
+                onPress={() => {
+                  setActiveTab(true);
+                }}
+                style={[
+                  styles.authButton,
+                  {
+                    borderBottomColor: activeTab
+                      ? colors.darkOrange
+                      : colors.grey,
+                  },
+                ]}>
+                <Text
+                  style={[
+                    styles.authButtonText,
+                    {color: activeTab ? colors.darkOrange : colors.grey},
+                  ]}>
+                  Sign In
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => {
+                  setActiveTab(false);
+                }}
+                style={[
+                  styles.authButton,
+                  {
+                    borderBottomColor: activeTab
+                      ? colors.grey
+                      : colors.darkOrange,
+                  },
+                ]}>
+                <Text
+                  style={[
+                    styles.authButtonText,
+                    {color: activeTab ? colors.grey : colors.darkOrange},
+                  ]}>
+                  Sign Up
+                </Text>
               </TouchableOpacity>
             </View>
-          ) : (
-            <View style={styles.inputFieldsContainer}>
-              <View style={styles.inputContainer}>
+            {activeTab ? (
+              <View style={styles.inputFieldsContainer}>
                 <Input
-                  onChangeText={setFirstName}
-                  InputStyle={styles.inputField}
-                  Placeholder="First Name"
-                  value={firstName}
+                  onChangeText={setSignInEmail}
+                  value={signInEmail}
+                  Placeholder="E-mail"
+                  keyboardType="email-address"
                 />
                 <Input
-                  onChangeText={setLastName}
-                  InputStyle={styles.inputField}
-                  Placeholder="Last Name"
-                  value={lastName}
+                  secureTextEntry={true}
+                  Placeholder="Password"
+                  value={signInPassword}
+                  onChangeText={setSignInPassword}
+                  InputStyle={{marginTop: Utils.resHeight(35)}}
+                />
+                <View style={styles.socialButtonsContainer}>
+                  <Button
+                    ButtonStyle={styles.socialButton}
+                    IconStyle={styles.socialButtonIcon}
+                    Icon={images.fblogo}
+                    titleStyle={styles.socialButtonText}
+                    title={'Sign in with Facebook'}
+                    imageContainer={styles.socialImageContainer}
+                    textContainer={styles.socialButtonTextContainer}
+                  />
+                  <Button
+                    ButtonStyle={styles.socialButton}
+                    IconStyle={styles.socialButtonIcon}
+                    Icon={images.googleLogo}
+                    titleStyle={styles.socialButtonText}
+                    title={'Sign in with Google'}
+                    imageContainer={styles.socialImageContainer}
+                    textContainer={styles.socialButtonTextContainer}
+                  />
+                </View>
+                <Button
+                  onPress={() => checkFieldSignIn()}
+                  textContainer={styles.textContainer}
+                  title={'Sign In'}
+                />
+                <TouchableOpacity  onPress={()=>navigation.navigate("ForgetPassword")} style={{marginTop: Utils.resHeight(30)}}>
+                  <Text style={styles.passwordText}>Forgot Password?</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={styles.inputFieldsContainer}>
+                <View style={styles.inputContainer}>
+                  <Input
+                    onChangeText={setFirstName}
+                    InputStyle={styles.inputField}
+                    Placeholder="First Name"
+                    value={firstName}
+                  />
+                  <Input
+                    onChangeText={setLastName}
+                    InputStyle={styles.inputField}
+                    Placeholder="Last Name"
+                    value={lastName}
+                  />
+                </View>
+                <View style={styles.inputContainer}>
+                  <Input
+                    onChangeText={setHeight}
+                    InputStyle={styles.inputField}
+                    Placeholder="Height"
+                    value={height}
+                    keyboardType="decimal-pad"
+                  />
+                  <Input
+                    onChangeText={setWeight}
+                    InputStyle={styles.inputField}
+                    Placeholder="Weight"
+                    value={weight}
+                    keyboardType="decimal-pad"
+                  />
+                </View>
+                <Input
+                  onChangeText={setSignUpEmail}
+                  value={signUpEmail}
+                  Placeholder="E-mail"
+                  keyboardType="email-address"
+                />
+                <Input
+                  onChangeText={setSignUpPassword}
+                  Placeholder="Create Password"
+                  InputStyle={{marginVertical: Utils.resHeight(35)}}
+                  value={signUpPassword}
+                  secureTextEntry={true}
+                />
+                <Button
+                  onPress={checkField}
+                  ButtonStyle={{marginTop: Utils.resHeight(35)}}
+                  textContainer={styles.textContainer}
+                  title={'Sign Up'}
                 />
               </View>
-              <View style={styles.inputContainer}>
-                <Input
-                  onChangeText={setHeight}
-                  InputStyle={styles.inputField}
-                  Placeholder="Height"
-                  value={height}
-                  keyboardType="decimal-pad"
-                />
-                <Input
-                  onChangeText={setWeight}
-                  InputStyle={styles.inputField}
-                  Placeholder="Weight"
-                  value={weight}
-                  keyboardType="decimal-pad"
-                />
-              </View>
-              <Input
-                onChangeText={setSignUpEmail}
-                value={signUpEmail}
-                Placeholder="E-mail"
-                keyboardType="email-address"
-              />
-              <Input
-                onChangeText={setSignUpPassword}
-                Placeholder="Create Password"
-                InputStyle={{marginVertical: Utils.resHeight(35)}}
-                value={signUpPassword}
-                secureTextEntry={true}
-              />
-              <Button
-                onPress={checkField}
-                ButtonStyle={{marginTop: Utils.resHeight(35)}}
-                textContainer={styles.textContainer}
-                title={'Sign Up'}
-              />
-            </View>
-          )}
+            )}
+          </View>
         </View>
-      </View>
-    </TouchableHighlight>
+      </TouchableHighlight>
+    </KeyboardAwareScrollView>
   );
 };
 export default Auth;

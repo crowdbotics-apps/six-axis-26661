@@ -18,6 +18,7 @@ import Auth from './screens/auth';
 import profileSetup from './screens/profileSetup';
 import AccountSettings from './screens/accountSettings';
 import Subscriptions from './screens/subscriptions';
+import ForgetPassword from './screens/forgetPassword'
 
 
 // Stacks
@@ -68,6 +69,7 @@ const AsyncValue = async() => {
       initialRouteName={"Splash"}>
       <Stack.Screen name="Splash" component={Splash} />
       <Stack.Screen name="Auth" component={Auth} />
+      <Stack.Screen name="ForgetPassword" component={ForgetPassword} />
       <Stack.Screen name="BottonStack" component={BottonStack} />
       <Stack.Screen name="profileSetup" component={profileSetup} />
       <Stack.Screen name="AccountSettings" component={AccountSettings} />

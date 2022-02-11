@@ -9,6 +9,7 @@ import {
   Keyboard,
   Modal,
 } from 'react-native';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview';
 import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
 import {useIsFocused} from '@react-navigation/native';
 import {StackActions} from '@react-navigation/native';
@@ -48,7 +49,7 @@ const profileSetup = ({navigation}) => {
     }
   }, [focused]);
 
-  const getUserProfile = async() => {
+  const getUserProfile = async () => {
     setLoading(true);
     getProfile()
       .then(response => {
@@ -114,7 +115,7 @@ const profileSetup = ({navigation}) => {
     }
   };
 
-  const updateProfile = async() => {
+  const updateProfile = async () => {
     let data = {
       first_name: firstName,
       last_name: lastName,
@@ -176,133 +177,141 @@ const profileSetup = ({navigation}) => {
     });
   };
   return (
-    <View style={styles.container}>
-      {AppLoading.renderLoading(loading)}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image style={styles.backArrow} source={images.arrowDown} />
+    <KeyboardAwareScrollView
+      contentContainerStyle={{flexGrow: 1}}
+      style={{flex: 1}}>
+      <View style={styles.container}>
+        {AppLoading.renderLoading(loading)}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Image style={styles.backArrow} source={images.arrowDown} />
+          </TouchableOpacity>
+          <Image style={styles.logo} source={images.gradianLogo} />
+          <View style={styles.backArrow} />
+        </View>
+        <TouchableOpacity
+          onPress={() => setImagePickerModal(true)}
+          style={styles.profilePicView}>
+          <View
+            style={[styles.profilePicView, {overflow: 'hidden', marginTop: 0}]}>
+            <Image
+              style={{height: '100%', width: '100%', resizeMode: 'cover'}}
+              source={
+                imagePath
+                  ? {uri: imagePath.uri}
+                  : profilePic
+                  ? {uri: profilePic}
+                  : images.person
+              }
+            />
+          </View>
+          <Image style={styles.cameraIcon} source={images.camera} />
         </TouchableOpacity>
-        <Image style={styles.logo} source={images.gradianLogo} />
-        <View style={styles.backArrow} />
-      </View>
-      <TouchableOpacity
-        onPress={() => setImagePickerModal(true)}
-        style={styles.profilePicView}>
-        <View
-          style={[styles.profilePicView, {overflow: 'hidden', marginTop: 0}]}>
-          <Image
-            style={{height: '100%', width: '100%', resizeMode: 'cover'}}
-            source={
-              imagePath
-                ? {uri: imagePath.uri}
-                : profilePic
-                ? {uri: profilePic}
-                : images.person
-            }
-          />
-        </View>
-        <Image style={styles.cameraIcon} source={images.camera} />
-      </TouchableOpacity>
-      <View style={styles.contentContainer}>
-        <View style={styles.inputContainer}>
+        <View style={styles.contentContainer}>
+          <View style={styles.inputContainer}>
+            <Input
+              onChangeText={setFirstName}
+              InputStyle={styles.inputField}
+              Placeholder="First Name"
+              value={firstName}
+            />
+            <Input
+              onChangeText={setLastName}
+              InputStyle={styles.inputField}
+              Placeholder="Last Name"
+              value={lastName}
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Input
+              onChangeText={setHeight}
+              InputStyle={styles.inputField}
+              Placeholder="Height"
+              value={height}
+              keyboardType="decimal-pad"
+            />
+            <Input
+              onChangeText={setWeight}
+              InputStyle={styles.inputField}
+              Placeholder="Weight"
+              value={weight}
+              keyboardType="decimal-pad"
+            />
+          </View>
+          {/* <View style={styles.inputContainer}> */}
           <Input
-            onChangeText={setFirstName}
-            InputStyle={styles.inputField}
-            Placeholder="First Name"
-            value={firstName}
+            onChangeText={setEmail}
+            InputStyle={{textAlign: 'left'}}
+            Placeholder="Email"
+            value={email}
+            keyboardType="email-address"
+            editable={false}
           />
-          <Input
-            onChangeText={setLastName}
-            InputStyle={styles.inputField}
-            Placeholder="Last Name"
-            value={lastName}
-          />
-        </View>
-        <View style={styles.inputContainer}>
-          <Input
-            onChangeText={setHeight}
-            InputStyle={styles.inputField}
-            Placeholder="Height"
-            value={height}
-            keyboardType="decimal-pad"
-          />
-          <Input
-            onChangeText={setWeight}
-            InputStyle={styles.inputField}
-            Placeholder="Weight"
-            value={weight}
-            keyboardType="decimal-pad"
-          />
-        </View>
-        {/* <View style={styles.inputContainer}> */}
-        <Input
-          onChangeText={setEmail}
-          InputStyle={{textAlign: 'left'}}
-          Placeholder="Email"
-          value={email}
-          keyboardType="email-address"
-          editable={false}
-        />
-        {/* <Input
+          {/* <Input
             onChangeText={setUserName}
             InputStyle={styles.inputField}
             Placeholder="User Name"
             value={userName}
           />
         </View> */}
-        <Button
-          onPress={() => updateProfilePic()}
-          ButtonStyle={{marginTop: '10%'}}
-          titleStyle={{alignSelf: 'center'}}
-          title={'Save'}
-        />
-      </View>
-      <Modal animationType="slide" transparent visible={imagePickerModal}>
-        <View style={styles.modalContainer}>
-          <View style={styles.optionsView}>
-            <Button
-              onPress={() => setImagePickerModal(false)}
-              ButtonStyle={{
-                borderBottomWidth: Utils.resHeight(1),
-                borderBottomColor: '#BE202E90',
-              }}
-              titleStyle={{alignSelf: 'center'}}
-              title="Delete Photo"
-            />
-            <Button
-              onPress={() => {
-                setImagePickerModal(false);
-                captureImage();
-              }}
-              ButtonStyle={{
-                borderBottomWidth: Utils.resHeight(1),
-                borderBottomColor: '#BE202E90',
-              }}
-              titleStyle={{alignSelf: 'center'}}
-              title="Take Photo"
-            />
-            <Button
-              onPress={() => {
-                setImagePickerModal(false);
-                chooseFile();
-              }}
-              titleStyle={{alignSelf: 'center'}}
-              title="Choose Photo"
-            />
-          </View>
-          <View style={styles.bottomButton}>
-            <Button
-              ButtonStyle={{
-                backgroundColor: colors.darkRed,
-              }}
-              onPress={() => setImagePickerModal(false)}
-              titleStyle={{alignSelf: 'center'}}
-              title="Cancel"
-            />
-          </View>
+          <Button
+            onPress={() => updateProfilePic()}
+            ButtonStyle={{marginTop: '10%'}}
+            titleStyle={{alignSelf: 'center'}}
+            title={'Save'}
+          />
         </View>
-      </Modal>
-    </View>
+        <Modal animationType="slide" transparent visible={imagePickerModal}>
+          <View style={styles.modalContainer}>
+            <View style={styles.optionsView}>
+              <Button
+                onPress={() => setImagePickerModal(false)}
+                ButtonStyle={{
+                  borderBottomWidth: Utils.resHeight(1),
+                  borderBottomColor: '#BE202E90',
+                }}
+                titleStyle={{alignSelf: 'center'}}
+                title="Delete Photo"
+              />
+              <Button
+                onPress={() => {
+                  setImagePickerModal(false);
+                  setTimeout(() => {
+                    captureImage();
+                  }, 700);
+                }}
+                ButtonStyle={{
+                  borderBottomWidth: Utils.resHeight(1),
+                  borderBottomColor: '#BE202E90',
+                }}
+                titleStyle={{alignSelf: 'center'}}
+                title="Take Photo"
+              />
+              <Button
+                onPress={() => {
+                  setImagePickerModal(false);
+                  setTimeout(() => {
+                    chooseFile();
+                  }, 700);
+                }}
+                titleStyle={{alignSelf: 'center'}}
+                title="Choose Photo"
+              />
+            </View>
+            <View style={styles.bottomButton}>
+              <Button
+                ButtonStyle={{
+                  backgroundColor: colors.darkRed,
+                }}
+                onPress={() => setImagePickerModal(false)}
+                titleStyle={{alignSelf: 'center'}}
+                title="Cancel"
+              />
+            </View>
+          </View>
+        </Modal>
+      </View>
+    </KeyboardAwareScrollView>
   );
 };
 export default profileSetup;

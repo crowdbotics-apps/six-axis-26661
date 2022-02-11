@@ -9,6 +9,7 @@ import {
   Modal,
   FlatList,
 } from 'react-native';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
 import {useIsFocused} from '@react-navigation/native';
@@ -97,7 +98,7 @@ const Subscriptions = props => {
             setLoading(false);
           })
           .catch(error => {
-            alert(error.message)
+            alert(error.message);
             console.log('🚀 line 45 ~ getProfile ~ error', error);
             setLoading(false);
           });
@@ -105,130 +106,144 @@ const Subscriptions = props => {
     });
   };
   return (
-    <View style={styles.mainContainer}>
-      {AppLoading.renderLoading(loading)}
-      <LinearGradient
-        start={{x: 0, y: 1.8}}
-        end={{x: 1, y: 0}}
-        colors={['#F9B041', '#BE202E']}
-        style={styles.linearGradient}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => props.navigation.goBack()}>
-            <Image style={styles.backArrow} source={images.arrowDown} />
-          </TouchableOpacity>
-          <View style={styles.profileImageContainer}>
-            <Image
-              source={profileUrl ? {uri: profileUrl} : images.person}
-              style={styles.profileImageStyle}
-            />
-          </View>
-          <View style={styles.logOutButton} />
-          {/* <TouchableOpacity onPress={() => setLogOutModal(true)}>
-            <Image style={styles.logOutButton} source={images.logOut} />
-          </TouchableOpacity> */}
-        </View>
-        {userData && (
-          <View style={styles.nameContainer}>
-            <Text style={styles.nameTextStyle}>
-              {userData.first_name + ' ' + userData.last_name}
-            </Text>
-          </View>
-        )}
-        <View style={{flex: 1}}>
-          <View style={{flex: 0.1}} />
-          <View style={styles.buttonsViewContainer}>
-            <Text style={styles.subscriptionTitle}>
-              {`Choose
-Subscriptions`}
-            </Text>
-            <FlatList
-              contentContainerStyle={{alignItems: 'center'}}
-              horizontal={true}
-              data={subscriptionsList}
-              keyExtractor={item => item.id}
-              renderItem={({item, index}) => {
-                return (
-                  <ButtonCard
-                    onPress={() => {
-                      setAddCardModal(true);
-                    }}
-                    ButtonStyle={{marginHorizontal: Utils.resWidth(100)}}
-                    image={images.payment}
-                    title={item.recurring.interval.toUpperCase()}
-                    titleText={item.unit_amount}
-                  />
-                );
-              }}
-            />
-            {/* </View> */}
-            <View style={{flex: 0.25}} />
-          </View>
-        </View>
-      </LinearGradient>
-      <Modal animationType="slide" transparent visible={addCardModal}>
-        <View style={styles.container}>
-          <View style={[styles.header, {marginTop: Utils.resHeight(30)}]}>
-            <TouchableOpacity onPress={() => setAddCardModal(false)}>
-              <Image
-                style={[styles.backArrow, {tintColor: colors.darkOrange}]}
-                source={images.arrowDown}
-              />
+    <KeyboardAwareScrollView
+      contentContainerStyle={{flexGrow: 1}}
+      style={{flex: 1}}>
+      <View style={styles.mainContainer}>
+        {AppLoading.renderLoading(loading)}
+        <LinearGradient
+          start={{x: 0, y: 1.8}}
+          end={{x: 1, y: 0}}
+          colors={['#F9B041', '#BE202E']}
+          style={styles.linearGradient}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => props.navigation.goBack()}>
+              <Image style={styles.backArrow} source={images.arrowDown} />
             </TouchableOpacity>
-            <Image style={styles.logo} source={images.gradianLogo} />
-            <View style={styles.backArrow} />
-          </View>
-          <ButtonCard
-            ButtonStyle={{alignSelf: 'center', marginTop: Utils.resHeight(52)}}
-            image={images.payment}
-            title={'Manage Payments'}
-          />
-          <View style={styles.contentContainer}>
-            <Input
-              onChangeText={setCardName}
-              InputStyle={{textAlign: 'left'}}
-              Placeholder="Name on Card"
-              value={cardName}
-            />
-            <Input
-              onChangeText={setCardNumber}
-              InputStyle={{textAlign: 'left', marginTop: Utils.resHeight(20)}}
-              Placeholder="Card Number"
-              value={cardNumber}
-            />
-            <View style={styles.inputContainer}>
-              <Input
-                onChangeText={setCardExpiryDate}
-                InputStyle={styles.inputField}
-                Placeholder="Expiry Date"
-                value={cardExpiryDate}
-                keyboardType="decimal-pad"
-              />
-              <Input
-                onChangeText={setCardCVC}
-                InputStyle={styles.inputField}
-                Placeholder="Security Code"
-                value={cardCVC}
-                keyboardType="decimal-pad"
-                maxLength={3}
+            <View style={styles.profileImageContainer}>
+              <Image
+                source={profileUrl ? {uri: profileUrl} : images.person}
+                style={styles.profileImageStyle}
               />
             </View>
-            <Input
-              onChangeText={setCardHolderPostalCode}
-              InputStyle={{textAlign: 'left'}}
-              Placeholder="Zip / Postal Code"
-              value={cardHolderPostalCode}
-              keyboardType="decimal-pad"
-            />
-            <Button
-              onPress={() => checkCardFields()}
-              ButtonStyle={{marginTop: '20%'}}
-              titleStyle={{alignSelf: 'center'}}
-              title={'Add Payment Method'}
-            />
+            <View style={styles.logOutButton} />
+            {/* <TouchableOpacity onPress={() => setLogOutModal(true)}>
+            <Image style={styles.logOutButton} source={images.logOut} />
+          </TouchableOpacity> */}
           </View>
-        </View>
-      </Modal>
-    </View>
+          {userData && (
+            <View style={styles.nameContainer}>
+              <Text style={styles.nameTextStyle}>
+                {userData.first_name + ' ' + userData.last_name}
+              </Text>
+            </View>
+          )}
+          <View style={{flex: 1}}>
+            <View style={{flex: 0.1}} />
+            <View style={styles.buttonsViewContainer}>
+              <Text style={styles.subscriptionTitle}>
+                {`Choose
+Subscriptions`}
+              </Text>
+              <FlatList
+                contentContainerStyle={{alignItems: 'center'}}
+                horizontal={true}
+                data={subscriptionsList}
+                keyExtractor={item => item.id}
+                renderItem={({item, index}) => {
+                  return (
+                    <ButtonCard
+                      onPress={() => {
+                        setAddCardModal(true);
+                      }}
+                      ButtonStyle={{marginHorizontal: Utils.resWidth(100)}}
+                      image={images.payment}
+                      title={item.recurring.interval.toUpperCase()}
+                      titleText={item.unit_amount}
+                    />
+                  );
+                }}
+              />
+              {/* </View> */}
+              <View style={{flex: 0.25}} />
+            </View>
+          </View>
+        </LinearGradient>
+        <Modal animationType="slide" transparent visible={addCardModal}>
+          <KeyboardAwareScrollView
+            contentContainerStyle={{flexGrow: 1}}
+            style={{flex: 1}}>
+            <View style={styles.container}>
+              <View style={[styles.header, {marginTop: Utils.resHeight(30)}]}>
+                <TouchableOpacity onPress={() => setAddCardModal(false)}>
+                  <Image
+                    style={[styles.backArrow, {tintColor: colors.darkOrange}]}
+                    source={images.arrowDown}
+                  />
+                </TouchableOpacity>
+                <Image style={styles.logo} source={images.gradianLogo} />
+                <View style={styles.backArrow} />
+              </View>
+              <ButtonCard
+                ButtonStyle={{
+                  alignSelf: 'center',
+                  marginTop: Utils.resHeight(52),
+                }}
+                image={images.payment}
+                title={'Manage Payments'}
+              />
+              <View style={styles.contentContainer}>
+                <Input
+                  onChangeText={setCardName}
+                  InputStyle={{textAlign: 'left'}}
+                  Placeholder="Name on Card"
+                  value={cardName}
+                />
+                <Input
+                  onChangeText={setCardNumber}
+                  InputStyle={{
+                    textAlign: 'left',
+                    marginTop: Utils.resHeight(20),
+                  }}
+                  Placeholder="Card Number"
+                  value={cardNumber}
+                />
+                <View style={styles.inputContainer}>
+                  <Input
+                    onChangeText={setCardExpiryDate}
+                    InputStyle={styles.inputField}
+                    Placeholder="Expiry Date"
+                    value={cardExpiryDate}
+                    keyboardType="decimal-pad"
+                  />
+                  <Input
+                    onChangeText={setCardCVC}
+                    InputStyle={styles.inputField}
+                    Placeholder="Security Code"
+                    value={cardCVC}
+                    keyboardType="decimal-pad"
+                    maxLength={3}
+                  />
+                </View>
+                <Input
+                  onChangeText={setCardHolderPostalCode}
+                  InputStyle={{textAlign: 'left'}}
+                  Placeholder="Zip / Postal Code"
+                  value={cardHolderPostalCode}
+                  keyboardType="decimal-pad"
+                />
+                <Button
+                  onPress={() => checkCardFields()}
+                  ButtonStyle={{marginTop: '20%'}}
+                  titleStyle={{alignSelf: 'center'}}
+                  title={'Add Payment Method'}
+                />
+              </View>
+            </View>
+          </KeyboardAwareScrollView>
+        </Modal>
+      </View>
+    </KeyboardAwareScrollView>
   );
 };
 export default Subscriptions;
@@ -237,6 +252,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+    paddingTop: 20,
   },
   textContainer: {
     justifyContent: 'center',

@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {StackActions, useIsFocused} from '@react-navigation/native';
 import images from '../../Assets';
@@ -211,60 +212,64 @@ const Menu = props => {
         </View>
       </Modal>
       <Modal animationType="slide" transparent visible={changePasswordModal}>
-        <Pressable
-          onPress={() => setChangePasswordModal(false)}
-          style={styles.chanegePasswordModalContainer}>
-          <View
-            style={{
-              width: '90%',
-              backgroundColor: colors.white,
-              borderRadius: Utils.resHeight(20),
-              paddingHorizontal: Utils.resHeight(20),
-            }}>
-            <Text style={styles.chanegePasswordModalTitle}>
-              Change Password
-            </Text>
-            <Input
-              onChangeText={setOldPassword}
-              InputStyle={{textAlign: 'left'}}
-              Placeholder="Old Password"
-              value={oldPassword}
-              keyboardType="visible-password"
-            />
-            <Input
-              onChangeText={setNewPassword}
-              InputStyle={{textAlign: 'left'}}
-              Placeholder="New Password"
-              value={newPassword}
-              // keyboardType="visible-password"
-              secureTextEntry={true}
-            />
-            <Input
-              onChangeText={setConfirmPassword}
-              InputStyle={{
-                textAlign: 'left',
-                marginBottom: Utils.resHeight(20),
-              }}
-              Placeholder="Confirm Password"
-              value={confirmPassword}
-              // keyboardType="visible-password"
-              secureTextEntry={true}
-            />
+        <KeyboardAwareScrollView
+          contentContainerStyle={{flexGrow: 1}}
+          style={{flex: 1}}>
+          <Pressable
+            onPress={() => setChangePasswordModal(false)}
+            style={styles.chanegePasswordModalContainer}>
             <View
               style={{
-                width: '60%',
-                alignSelf: 'center',
-                marginVertical: Utils.resHeight(20),
+                width: '90%',
+                backgroundColor: colors.white,
+                borderRadius: Utils.resHeight(20),
+                paddingHorizontal: Utils.resHeight(20),
               }}>
-              <Button
-                onPress={() => checkField()}
-                ButtonStyle={{marginTop: '10%'}}
-                titleStyle={{alignSelf: 'center'}}
-                title={'Save'}
+              <Text style={styles.chanegePasswordModalTitle}>
+                Change Password
+              </Text>
+              <Input
+                onChangeText={setOldPassword}
+                InputStyle={{textAlign: 'left'}}
+                Placeholder="Old Password"
+                value={oldPassword}
+                keyboardType="visible-password"
               />
+              <Input
+                onChangeText={setNewPassword}
+                InputStyle={{textAlign: 'left'}}
+                Placeholder="New Password"
+                value={newPassword}
+                // keyboardType="visible-password"
+                secureTextEntry={true}
+              />
+              <Input
+                onChangeText={setConfirmPassword}
+                InputStyle={{
+                  textAlign: 'left',
+                  marginBottom: Utils.resHeight(20),
+                }}
+                Placeholder="Confirm Password"
+                value={confirmPassword}
+                // keyboardType="visible-password"
+                secureTextEntry={true}
+              />
+              <View
+                style={{
+                  width: '60%',
+                  alignSelf: 'center',
+                  marginVertical: Utils.resHeight(20),
+                }}>
+                <Button
+                  onPress={() => checkField()}
+                  ButtonStyle={{marginTop: '10%'}}
+                  titleStyle={{alignSelf: 'center'}}
+                  title={'Save'}
+                />
+              </View>
             </View>
-          </View>
-        </Pressable>
+          </Pressable>
+        </KeyboardAwareScrollView>
       </Modal>
     </View>
   );
