@@ -20,5 +20,11 @@ const images = {
     camera: require('./camera.png'),
     changePassword: require('./changePassword.png'),
     subscriptions: require('./subscriptions.png'),
+    deviceShape: require('./deviceShape.png'),
+    instagram: require('./instagram.png'),
+    external: require('./external.png'),
+    facebook: require('./facebook.png'),
+    twitter: require('./twitter.png'),
+    linkedIn: require('./linkedIn.png'),
 }
 export default images;

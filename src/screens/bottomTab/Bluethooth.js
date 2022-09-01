@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import {
   View,
   Text,
@@ -28,11 +28,21 @@ import images from '../../Assets';
 
 //Components
 import ButtonCard from '../../components/ButtonCard';
+import GearAPI, {BluetoothState} from './GearAPI/GearAPI';
+import ChargingStatus from './GearAPI/NotificationMessage';
 import colors from '../../utils/colors';
 import {Utils} from '../../utils/Dimensions';
+import {AppContext} from '../../context/AppContext';
+
+var lastConnectedDevice = null;
+var lastDeviceMovement = {x: 0, y: 0};
+
+GearAPI.communicationLog = true;
+GearAPI.disableWarnings = false;
 
 const Bluethooth = props => {
   const focused = useIsFocused();
+  const {setDevices, devices, setDevicesId, devicesId} = useContext(AppContext);
   const [modalOpen, setModalOpen] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [list, setList] = useState([]);
@@ -40,9 +50,64 @@ const Bluethooth = props => {
   const [bluethoothList, setBluethoothList] = useState(['', '']);
   const [userData, setUserData] = useState(null);
   const [profileUrl, setProfileUrl] = useState(null);
+  //Gear Api
+  const [availableDevices, setAvailableDevices] = useState({});
+  const [log, setLog] = useState('');
+
   const peripherals = new Map();
   const BleManagerModule = NativeModules.BleManager;
   const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
+
+  //Gear Api
+  useEffect(() => {
+    GearAPI.OnGearDiscovery(async function (device) {
+      console.log('Discovered: ' + device.name + ' (' + device.id + ')');
+      availableDevices[device.id] = device;
+
+      var log = 'Discovered devices:\n\n';
+      var devices = Object.values(availableDevices);
+      for (var i in devices) {
+        if (typeof devices[i].id == 'undefined') continue;
+        log += devices[i].name + ' (' + devices[i].id + ')\r\n';
+      }
+      await setLog(log);
+      await setAvailableDevices(availableDevices);
+    });
+  }, [availableDevices]);
+
+  GearAPI.OnGearConnect(async function (device) {
+    console.log('Device connected ' + device.id);
+    setLog('Device connected ' + device.name);
+    setConnectedDevice(device.id);
+    lastConnectedDevice = device;
+    lastDeviceMovement = {x: 0, y: 0};
+  });
+
+  GearAPI.OnGearDisconnect(async function (device) {
+    console.log('Device disconnected ' + device.name);
+    setLog('Device disconnected ' + device.name);
+    lastConnectedDevice = null;
+    lastDeviceMovement = {x: 0, y: 0};
+  });
+
+  GearAPI.OnGearNotification(async function (device, message) {
+    if (message.chargingStatus == ChargingStatus.Charging) {
+      // Do something
+    }
+
+    //setLog(message.ToString()); // See RAW data
+    lastDeviceMovement.x += message.MovementX();
+    lastDeviceMovement.y += message.MovementY();
+    setLog(
+      'X: ' +
+        lastDeviceMovement.x +
+        '\nY: ' +
+        lastDeviceMovement.y +
+        '\nPressure: ' +
+        message.CurrentPressure() +
+        'g',
+    );
+  });
 
   useEffect(() => {
     if (focused) setUser();
@@ -126,15 +191,18 @@ const Bluethooth = props => {
       if (enabled) {
         setModalOpen(true);
         setIsScanning(true);
-        setList([]);
-        RNBluetoothClassic.startDiscovery()
-          .then(response => {
-            setIsScanning(false);
-            setList(response);
-          })
-          .catch(err => {
-            console.log('🚀 ~ file: Bluethooth.js ~ line 122 ~ err', err);
-          });
+        // setList([]);
+        // RNBluetoothClassic.startDiscovery()
+        //   .then(response => {
+        //     setIsScanning(false);
+        //     setList(response);
+        //   })
+        //   .catch(err => {
+        //     console.log('🚀 ~ file: Bluethooth.js ~ line 122 ~ err', err);
+        //   });
+        setLog('Scanning...');
+        GearAPI.StartDeviceScan();
+        setIsScanning(false);
       } else {
         RNBluetoothClassic.requestBluetoothEnabled()
           .then(resp => {})
@@ -184,10 +252,16 @@ const Bluethooth = props => {
 
   const setUser = async () => {
     let user = await AsyncStorage.getItem('user');
+    let device = await AsyncStorage.getItem('lastConnectedDevice');
     user = JSON.parse(user);
+
     if (user.profile_picture) {
       let profileString = user.profile_picture.split('?');
       setProfileUrl(profileString[0]);
+    }
+    if (device) {
+      device = JSON.parse(device);
+      lastConnectedDevice = device;
     }
     setUserData(user);
   };
@@ -298,47 +372,60 @@ const Bluethooth = props => {
   };
 
   const renderBluethoothList = ({item}) => {
-    return (
-      <View style={styles.listViewContainer}>
-        <View style={[styles.listViewItem, {width: '10%'}]}>
-          <Image
-            resizeMode="contain"
-            style={styles.listViewItemImage}
-            source={images.bluetooth}
-          />
-        </View>
-        <View
-          style={[
-            styles.listViewItem,
-            {width: '40%', alignItems: 'flex-start'},
-          ]}>
-          <Text
-            style={[styles.listViewItemText, {fontSize: Utils.resHeight(16)}]}>
-            {item.name}
-          </Text>
-        </View>
-        <TouchableOpacity
-          onPress={() => {
-            RNBluetoothClassic.pairDevice(item.address)
-              .then(response => {
-                setConnectedDevice(item.address);
-              })
-              .catch(err => {
-                console.log(
-                  '🚀 ~ line 313 ~ RNBluetoothClassic.pairDevice ~ err',
-                  err,
-                );
-              });
-          }}
-          style={[
-            styles.listViewItem,
-            {borderWidth: 1, borderColor: colors.white},
-          ]}>
-          <Text style={styles.listViewItemText}>
-            {item.address == connectedDevice ? 'Connected' : 'Connect'}
-          </Text>
-        </TouchableOpacity>
-        {/* <TouchableOpacity
+    if (item.name != null)
+      return (
+        <View style={styles.listViewContainer}>
+          <View style={[styles.listViewItem, {width: '10%'}]}>
+            <Image
+              resizeMode="contain"
+              style={styles.listViewItemImage}
+              source={images.bluetooth}
+            />
+          </View>
+          <View
+            style={[
+              styles.listViewItem,
+              {width: '40%', alignItems: 'flex-start'},
+            ]}>
+            <Text
+              style={[
+                styles.listViewItemText,
+                {fontSize: Utils.resHeight(16)},
+              ]}>
+              {item.name}
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={async () => {
+              if (item.id == connectedDevice) {
+                if (await GearAPI.IsDeviceConnected(lastConnectedDevice)) {
+                  GearAPI.Vibrate(lastConnectedDevice);
+                }
+              } else {
+                GearAPI.ConectDevice(item);
+                setDevices([...devices, item]);
+                setDevicesId([...devicesId,item.id])
+              }
+              // RNBluetoothClassic.pairDevice(item.address)
+              //   .then(response => {
+              //     setConnectedDevice(item.address);
+              //   })
+              //   .catch(err => {
+              //     console.log(
+              //       '🚀 ~ line 313 ~ RNBluetoothClassic.pairDevice ~ err',
+              //       err,
+              //     );
+              //   });
+            }}
+            style={[
+              styles.listViewItem,
+              {borderWidth: 1, borderColor: colors.white},
+            ]}>
+            <Text style={styles.listViewItemText}>
+              {item.id == connectedDevice ? 'Vibrate' : devicesId.includes(item.id)?'Vibrate': 'Connect'}
+            </Text>
+          </TouchableOpacity>
+          {/* <TouchableOpacity
         onPress={() => {
           RNBluetoothClassic.getConnectedDevices().then((res)=>{
           console.log("🚀 ~ file: Bluethooth.js ~ line 326 ~ RNBluetoothClassic.getConnectedDevices ~ res", res)
@@ -352,8 +439,8 @@ const Bluethooth = props => {
             Disconnect
           </Text>
         </TouchableOpacity> */}
-      </View>
-    );
+        </View>
+      );
   };
 
   return (
@@ -396,7 +483,12 @@ const Bluethooth = props => {
         <View style={styles.modalContainer}>
           <Pressable
             style={{flex: 1}}
-            onPress={() => setModalOpen(false)}></Pressable>
+            onPress={() => {
+              setModalOpen(false);
+              setAvailableDevices({});
+              setLog('');
+              GearAPI.StopDeviceScan();
+            }}></Pressable>
           <LinearGradient
             start={{x: 0, y: 2}}
             end={{x: 0.1, y: 0}}
@@ -410,13 +502,13 @@ const Bluethooth = props => {
                 source={images.arrowDown}
               />
             </TouchableOpacity>
-            {list.length == 0 && !isScanning && (
+            {/* {list.length == 0 && !isScanning && (
               <View style={{flex: 1, margin: 20}}>
                 <Text style={{textAlign: 'center', color: colors.white}}>
                   No Devices
                 </Text>
               </View>
-            )}
+            )} */}
             {isScanning && (
               <View style={{flex: 1, margin: 20}}>
                 <Text style={{textAlign: 'center', color: colors.white}}>
@@ -426,8 +518,17 @@ const Bluethooth = props => {
             )}
             <FlatList
               scrollEnabled={true}
-              data={list}
+              data={Object.values(availableDevices)}
               renderItem={renderBluethoothList}
+              ListEmptyComponent={() => {
+                return (
+                  <View style={{flex: 1, margin: 20}}>
+                    <Text style={{textAlign: 'center', color: colors.white}}>
+                      Scanning...
+                    </Text>
+                  </View>
+                );
+              }}
             />
           </LinearGradient>
         </View>

@@ -1,6 +1,7 @@
 import React, {Component, useEffect} from 'react';
 import {LogBox, StatusBar} from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
+import AppContextProvider from './context/AppContext';
 
 import Routing from './Routing';
 import colors from './utils/colors';
@@ -11,9 +12,13 @@ StatusBar.setBarStyle('dark-content');
 
 export default App = props => {
   useEffect(() => {
-    setTimeout(()=>{
+    setTimeout(() => {
       SplashScreen.hide();
-    },2500)
+    }, 2500);
   }, []);
-  return <Routing />;
+  return (
+    <AppContextProvider>
+      <Routing />
+    </AppContextProvider>
+  );
 };

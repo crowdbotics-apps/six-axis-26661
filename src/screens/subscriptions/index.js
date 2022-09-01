@@ -84,12 +84,14 @@ const Subscriptions = props => {
       cvc: cardCVC,
       address_zip: cardHolderPostalCode,
     };
+    console.log("🚀 ~ file: index.js ~ line 87 ~ addCard ~ data", data)
     setLoading(true);
     StripeHelper.getToken(data, response => {
       if (response.error) {
         setLoading(false);
         alert(response.error.message);
       } else {
+        console.log("🚀 ~ file: index.js ~ line 95 ~ addCard ~ response.id", response.id)
         createCard({
           card_token: response.id,
         })

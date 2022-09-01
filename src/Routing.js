@@ -19,6 +19,7 @@ import profileSetup from './screens/profileSetup';
 import AccountSettings from './screens/accountSettings';
 import Subscriptions from './screens/subscriptions';
 import ForgetPassword from './screens/forgetPassword'
+import GearRepresentation from './screens/gearRepresentation';
 
 
 // Stacks
@@ -74,6 +75,7 @@ const AsyncValue = async() => {
       <Stack.Screen name="profileSetup" component={profileSetup} />
       <Stack.Screen name="AccountSettings" component={AccountSettings} />
       <Stack.Screen name="Subscriptions" component={Subscriptions} />
+      <Stack.Screen name="GearRepresentation" component={GearRepresentation} />
     </Stack.Navigator>
   );
 };

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>462072127746-tjpb9upc0850r1tmfo0iiha5t9scfdhk.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.462072127746-tjpb9upc0850r1tmfo0iiha5t9scfdhk</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDviTX-Rue0ACJmKMVK0HZwfYTu_dhWxPA</string>
+	<key>GCM_SENDER_ID</key>
+	<string>462072127746</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.crowdbotics.new-app-26048-5aa35818</string>
+	<key>PROJECT_ID</key>
+	<string>sorfit-44311</string>
+	<key>STORAGE_BUCKET</key>
+	<string>sorfit-44311.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:462072127746:ios:520d0da046735a80ce221b</string>
+</dict>
+</plist>

@@ -12,6 +12,7 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview';
 import {StackActions} from '@react-navigation/native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {AppleButton,appleAuth} from '@invertase/react-native-apple-authentication';
 //API's
 import {signupAPI, signInAPI} from '../../API/methods/auth';
 //Components
@@ -133,8 +134,33 @@ const Auth = ({navigation}) => {
       });
   };
 
+  const onAppleButtonPress = async () => {
+    // Start the sign-in request
+    const appleAuthRequestResponse = await appleAuth.performRequest({
+      requestedOperation: appleAuth.Operation.LOGIN,
+      requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+    });
+
+    // Ensure Apple returned a user identityToken
+    if (!appleAuthRequestResponse.identityToken) {
+      throw new Error('Apple Sign-In failed - no identify token returned');
+    }
+
+    // Create a Firebase credential from the response
+    const {identityToken, nonce} = appleAuthRequestResponse;
+    const appleCredential = auth.AppleAuthProvider.credential(
+      identityToken,
+      nonce,
+    );
+
+    // Sign the user in with the credential
+    return auth().signInWithCredential(appleCredential);
+  };
+
   return (
-    <KeyboardAwareScrollView contentContainerStyle={{flexGrow:1}} style={{flex: 1}}>
+    <KeyboardAwareScrollView
+      contentContainerStyle={{flexGrow: 1}}
+      style={{flex: 1}}>
       <TouchableHighlight
         activeOpacity={1}
         onPress={() => {
@@ -211,7 +237,7 @@ const Auth = ({navigation}) => {
                   InputStyle={{marginTop: Utils.resHeight(35)}}
                 />
                 <View style={styles.socialButtonsContainer}>
-                  <Button
+                  {/* <Button
                     ButtonStyle={styles.socialButton}
                     IconStyle={styles.socialButtonIcon}
                     Icon={images.fblogo}
@@ -229,13 +255,28 @@ const Auth = ({navigation}) => {
                     imageContainer={styles.socialImageContainer}
                     textContainer={styles.socialButtonTextContainer}
                   />
+                  <AppleButton
+                    buttonStyle={AppleButton.Style.WHITE}
+                    buttonType={AppleButton.Type.SIGN_IN}
+                    style={{
+                      width: 160,
+                      height: 45,
+                    }}
+                    onPress={() =>
+                      onAppleButtonPress().then(() =>
+                        console.log('Apple sign-in complete!'),
+                      )
+                    }
+                  /> */}
                 </View>
                 <Button
                   onPress={() => checkFieldSignIn()}
                   textContainer={styles.textContainer}
                   title={'Sign In'}
                 />
-                <TouchableOpacity  onPress={()=>navigation.navigate("ForgetPassword")} style={{marginTop: Utils.resHeight(30)}}>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('ForgetPassword')}
+                  style={{marginTop: Utils.resHeight(30)}}>
                   <Text style={styles.passwordText}>Forgot Password?</Text>
                 </TouchableOpacity>
               </View>
