@@ -9,6 +9,9 @@ import {
   Pressable,
   TouchableOpacity,
   ImageBackground,
+  ScrollView,
+  SafeAreaView,
+  Alert,
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {useIsFocused} from '@react-navigation/native';
@@ -25,6 +28,7 @@ import Button from '../../components/Button';
 import GearAPI from './GearAPI/GearAPI';
 
 var lastConnectedDevice = null;
+var lastDeviceMovement = { x: 0, y: 0};
 
 const Home = props => {
   const difficuiltyData = [
@@ -110,6 +114,10 @@ const Home = props => {
   const [pushUp, setPushUp] = useState(null);
   const [userData, setUserData] = useState(null);
   const [profileUrl, setProfileUrl] = useState(null);
+  const [availableDevices, setAvailableDevices] = useState({});
+  const [deviceScanned,setDeviceScanned] = useState(false)
+  const [deviceConn,setDeviceConn] = useState(false)
+  const [scannedDevices,setScannedDevices] = useState([])
 
   useEffect(() => {
     if (focused) {
@@ -123,6 +131,7 @@ const Home = props => {
     params.append('workout_type', workOutNum ? workOutNum : radioButtonCheck);
     getWorkouts(params)
       .then(response => {
+        console.log('workoutResponse', response)
         setWorkoutList(response.data);
         setLoading(false);
       })
@@ -140,11 +149,14 @@ const Home = props => {
       setProfileUrl(profileString[0]);
     }
     if (device) {
+      
       device = JSON.parse(device);
       lastConnectedDevice = device;
     }
     setUserData(user);
   };
+
+  
 
   const renderWorkOutList = ({item, index}) => {
     return (
@@ -168,26 +180,176 @@ const Home = props => {
       </View>
     );
   };
-  const connectDevice = async () => {
+  // const connectDevices = () => {
+  //   console.log(availableDevices)
+  //   // for (var i = 0; i < availableDevices.length; i++) {
+  //   //   console.log('DEVICE', availableDevices[i])
+  //   // }
+  // }
+
+  useEffect(() => {
+     GearAPI.OnGearDiscovery(async function (device) {
+      // console.log('Discovered: ' + device.name + ' (' + device.id + ')');
+            console.log('Discovered: ', device);
+            // let _availableDevice = [...availableDevices]
+            availableDevices[device.id] = device;
+
+            // var log = 'Discovered devices:\n\n';
+            // var devices = Object.values(availableDevices);
+            // for (var i in devices) {
+            //     if (typeof devices[i].id == 'undefined') continue;
+            //     log += devices[i].name + ' (' + devices[i].id + ')\r\n';
+            // }
+            // await setLog(log);
+           await setAvailableDevices(availableDevices);
+           
+           if (Object.keys(availableDevices).length > 1) {
+
+             let devices = Object.values(availableDevices)
+             setScannedDevices(devices)
+             // console.log('availableDevices', availableDevices)
+             AsyncStorage.setItem('lastConnectedDevices', JSON.stringify(availableDevices));
+
+             setLoading(false);
+             setDeviceScanned(true)
+            //  props.navigation.navigate('GearRepresentation',{timer:difficuilty});
+            //  setModalOpen(false);
+            // setTimeout(() => {
+            //   alert('Calibration Completed!');
+            // }, 300);
+             
+
+
+           }
+           // console.log('AVAILABLE', availableDevices)
+        });
+    }, [availableDevices]);
+
+  GearAPI.OnGearConnect(async function (device) {
+        console.log('Device connected ' + device.name);
+        lastConnectedDevice = device;
+        lastDeviceMovement = { x: 0, y: 0 };
+        setLoading(false);
+        setDeviceScanned('false')
+        setDeviceConn(true)
+        // onGearConnectComplete(lastConnectedDevice)
+  });
+
+  // const scanDevice = async () => {
+  //   setLoading(true);
+  //   //   if (availableDevices.length > 1) {
+  //   //     let _availableDevice = []
+  //   //   for (const key in availableDevices){
+  //   //     _availableDevice.push(availableDevices[key])
+  //   //   }
+  //   //   await GearAPI.IsDeviceConnected(_availableDevice[1])
+  //   // }else{
+  //     await GearAPI.StopDeviceScan()
+  //     await GearAPI.StartDeviceScan()
+  //   // }
+  //   // props.navigation.navigate('GearRepresentation',{timer:difficuilty});
+
+
+  // }
+
+  
+  const onGearConnectComplete = async(connectedDevice) => {
+    console.log('Im fired', connectedDevice)
     let isDeviceConnected = await GearAPI.IsDeviceConnected(
-      lastConnectedDevice,
+      connectedDevice,
     );
+    
     if (isDeviceConnected) {
-      GearAPI.CheckProximity(lastConnectedDevice, function (e) {
+      console.log('Im connected', isDeviceConnected)
+      GearAPI.CheckProximity(connectedDevice, function (e) {
+        console.log('EEEEEEEE', e)
         if (e.isNear) {
+          console.log('device is close')
           setModalOpen(false);
-          props.navigation.navigate('GearRepresentation',{timer:difficuilty});
+          // props.navigation.navigate('GearRepresentation',{timer:difficuilty});
           setTimeout(() => {
             alert('Calibration Completed!');
           }, 300);
-        } else e.ContinueCheck();
+        } else {
+          console.log('NO-Promixity')
+          e.ContinueCheck()
+        }
       });
     } else {
       alert('No devices connected.');
     }
-  };
+  }
+  GearAPI.OnGearNotification(async function (device, message) {
+        // if (message.chargingStatus == ChargingStatus.Charging) {
+        //     // Do something
+        // }
+        
+        //setLog(message.ToString()); // See RAW data
+        console.log('MESSAGE', message)
+        // lastDeviceMovement.x += message.MovementX();
+        // lastDeviceMovement.y += message.MovementY();
+        // setLog("X: " + lastDeviceMovement.x + '\nY: ' + lastDeviceMovement.y + '\nPressure: ' + message.CurrentPressure() + 'g');
+    });
+  // const connectDevice = async () => {
+  //   console.log('AVAILABLE', availableDevices)
+    // let _availableDevice = []
+    // for (const key in availableDevices){
+    //   _availableDevice.push(availableDevices[key])
+    // }
+    // var devices = Object.values(availableDevices);
+    // console.log('DEVICES IN CONNECT', availableDevices)
+    // var connectionSuccess = await GearAPI.ConectDevice(devices[0])
+    // console.log('connection success', connectionSuccess)
+    // console.log('SUCCESS', success)
+    // setLoading(true)
+    // if (await GearAPI.IsDeviceConnected(_availableDevice[1])) {
+    //   console.log('I am connected')
+    //   setLoading(false)
+    //   GearAPI.CheckProximity(_availableDevice[1], function (e) {
+    //     console.log('EEEEEEEE', e)
+    //     if (e.isNear) {
+    //       console.log('device is close')
+    //       setModalOpen(false);
+    //       // props.navigation.navigate('GearRepresentation',{timer:difficuilty});
+    //       setTimeout(() => {
+    //         alert('Calibration Completed!');
+    //       }, 300);
+    //     } else {
+    //       console.log('NO-Promixity')
+    //       e.ContinueCheck()
+    //     }
+    //   });
+    // }else{
+    //   setLoading(false)
+    //   console.log('I am not connected')
+    //   // await GearAPI.ConectDevice(_availableDevice[1]);
+    // }
+    // console.log('SCANNNED', _availableDevice[0])
+    // let isDeviceConnected = await GearAPI.IsDeviceConnected(
+    //   _availableDevice[0],
+    // );
+    // console.log('DDDDDDDD', isDeviceConnected)
+    // if (isDeviceConnected) {
+    //   GearAPI.CheckProximity(_availableDevice[0], function (e) {
+    //     if (e.isNear) {
+    //       console.log('device is close')
+    //       // setModalOpen(false);
+    //       // props.navigation.navigate('GearRepresentation',{timer:difficuilty});
+    //       setTimeout(() => {
+    //         alert('Calibration Completed!');
+    //       }, 300);
+    //     } else e.ContinueCheck();
+    //   });
+    // } else {
+    //   alert('No devices connected.');
+    // }
+  // };
 
   return (
+    <SafeAreaView style={{flex:1}}>
+    <ScrollView 
+      contentContainerStyle={{flexGrow: 1}}
+      showsVerticalScrollIndicator={false}>
     <View style={styles.mainContainer}>
       {AppLoading.renderLoading(loading)}
       <LinearGradient
@@ -254,8 +416,9 @@ const Home = props => {
               setOpen={setOpenDifficult}
               value={difficuilty}
               setValue={value => {
+                console.log('VAL', value)
                 setDifficuilty(value);
-                setModalOpen(true);
+                // setModalOpen(true);
               }}
               containerStyle={styles.dropDownContainerStyle}
               style={styles.dropDownMainStyle}
@@ -326,6 +489,27 @@ const Home = props => {
           data={workoutList}
           renderItem={renderWorkOutList}
         />
+
+        <Button
+                onPress={() => {
+                  if (difficuilty) {
+                    console.log('DIFFI', difficuilty)
+                    setModalOpen(true);
+                  }else{
+                    alert('Please select Difficulty.')
+                  }
+                  // props.navigation.navigate('GearRepresentation',{timer:20});
+                  // deviceScanned ? connectDevice():scanDevice() 
+                }}
+                ButtonStyle={{
+                  marginTop: '2%',
+                  width: '40%',
+                  alignSelf: 'center',
+                  backgroundColor:'white'
+                }}
+                titleStyle={{alignSelf: 'center', color: colors.darkOrange}}
+                title={'Start'}
+              />
         <Modal animationType="slide" transparent visible={modalOpen}>
           <View style={styles.modalContainer}>
             <Pressable
@@ -355,11 +539,39 @@ const Home = props => {
                   <Text style={styles.shapeTitle}>R</Text>
                 </ImageBackground>
               </View>
+              { deviceScanned && 
+                <>
+                  <Text style={styles.descHeader}>Callibration completed.</Text>
+                  <Text style={styles.descHeader}>{scannedDevices[0].name +` : ` +scannedDevices[0].id}</Text>
+                  <Text style={styles.descHeader}>{scannedDevices[1].name +` : ` +scannedDevices[1].id}</Text>
+                </>
+              }
               <Button
-                onPress={() => {
+                onPress={ async () => {
                   // setModalOpen(false);
                   // props.navigation.navigate('GearRepresentation',{timer:difficuilty});
-                  connectDevice();
+                  if (deviceScanned && !deviceConn) {
+                     await GearAPI.StopDeviceScan()
+                     props.navigation.navigate('GearRepresentation',{timer:difficuilty});
+                    // var devices = Object.values(availableDevices)
+                    // console.log('underIF', devices[1])
+                    // if (devices.length > 0) { await GearAPI.ConectDevice(devices[1]) }
+                    //   else{await GearAPI.StartDeviceScan()}
+                  }else if(deviceConn){
+                    if (await GearAPI.IsDeviceConnected(lastConnectedDevice)) {
+                            GearAPI.CheckProximity(lastConnectedDevice, function (e) {
+                                if (e.isNear)
+                                    console.log('Device is close to another one.');
+                                else e.ContinueCheck();
+                            });
+                        }
+                        else alert('No devices connected.');
+                  }
+                  else{
+                    await GearAPI.StopDeviceScan()
+                    await GearAPI.StartDeviceScan()
+                  }
+                  // deviceScanned ? connectDevice():GearAPI.scanDevice() 
                 }}
                 ButtonStyle={{
                   marginTop: '2%',
@@ -367,13 +579,15 @@ const Home = props => {
                   alignSelf: 'center',
                 }}
                 titleStyle={{alignSelf: 'center'}}
-                title={'Continue'}
+                title={deviceScanned ? deviceConn ? 'Check Proximity' : 'Continue' : 'Scan'}
               />
             </View>
           </View>
         </Modal>
       </LinearGradient>
     </View>
+    </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -492,7 +706,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   modalContentContainer: {
-    height: Utils.resHeight(450),
+    height: Utils.resHeight(500),
     borderTopLeftRadius: Utils.resHeight(30),
     borderTopRightRadius: Utils.resHeight(30),
     backgroundColor: 'white',

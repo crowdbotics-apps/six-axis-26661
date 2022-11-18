@@ -32,13 +32,18 @@ const GearRepresentation = props => {
   const [loading, setLoading] = useState(false);
   const [userData, setUserData] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [openGearConnectModal, setOpenGearConnectModal] = useState(true)
   const [profileUrl, setProfileUrl] = useState(null);
-  const [timer, setTimer, timerRef] = useState(route?.params?.timer);
+  const [timer, setTimer] = useState(0);
+  const [progress, setProgress] = useState(0)
+  const [availableDevices, setAvailableDevices] = useState({});
 
   useEffect(() => {
     if (focused) {
+      
       setUser();
-      listenNotification()
+      // setSavedDevices()
+      // listenNotification()
     }
   }, [focused]);
   const listenNotification=async()=>{
@@ -48,20 +53,33 @@ const GearRepresentation = props => {
     
   }
   useEffect(() => {
-    let interval = setInterval(() => {
-      setTimer(prev => {
-        if (prev === 1) {
+    
+    const interval = setInterval(() => {
+      setTimer(timer => {
+        if (timer === 2000) {
           setModalOpen(true)
           clearInterval(interval);
         }
-        return prev - 1;
+        let progress = timer / 2000
+        if (progress > 1) {
+          progress = 1
+        }
+        setProgress(progress)
+        return timer + 1
       });
     }, 1000);
     // interval cleanup on component unmount
     return () => clearInterval(interval);
   }, []);
+
   const setUser = async () => {
     let user = await AsyncStorage.getItem('user');
+    let devices = await AsyncStorage.getItem('lastConnectedDevices')
+
+    devices = JSON.parse(devices)
+    setAvailableDevices(devices)
+
+
 
     user = JSON.parse(user);
     if (user.profile_picture) {
@@ -70,7 +88,24 @@ const GearRepresentation = props => {
     }
     setUserData(user);
   };
-
+  // console.log('availableDevices', availableDevices)
+  const millistoMinutesAndSeconds = (millis) => {
+    var minutes = Math.floor(millis / 6000);
+    var seconds = ((millis % 6000) / 100).toFixed(0);
+    return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+  }
+  const renderDevicesData = () => {
+    return(
+      <View style={{flexDirection: 'row', justifyContent:'flex-start', alignItems:'center'}} >
+                <View style={{width:'50%'}}>
+                  <Text style={{alignSelf:'center'}}>Device A</Text>
+                </View>
+                <View style={{width:'50%'}}>
+                  <Text>Device B</Text>
+                </View>
+      </View>
+    )
+  }
   return (
     <View style={styles.mainContainer}>
       {AppLoading.renderLoading(loading)}
@@ -127,13 +162,11 @@ const GearRepresentation = props => {
             </View>
           </View>
         </View>
-        <Text style={styles.timer}>{`00:${
-          timer < 10 ? `0${timer}` : timer
-        }`}</Text>
+        <Text style={styles.timer}>{timer ? millistoMinutesAndSeconds(timer) : '00:00'}</Text>
         <View style={styles.barContainer}>
           <Progress.Bar
             color={colors.lightOrange}
-            progress={timer / route?.params?.timer}
+            progress={progress}
             borderWidth={0}
             height={Utils.resHeight(22)}
             width={Utils.resWidth(1450)}
@@ -148,6 +181,23 @@ const GearRepresentation = props => {
             <View style={styles.radioFill} />
           </View>
         </View>
+
+        <Modal animationType="slide" transparent visible={openGearConnectModal}>
+          <View style={styles.modalContainer}>
+            <Pressable
+              style={{flex: 1}}
+              onPress={() => {
+                setOpenGearConnectModal(false);
+              }}></Pressable>
+            <View style={styles.modalContentContainer}>
+              <Text style={styles.modalHeader}>{'Connect Gear'}</Text>
+              <View style={styles.line} />
+              {renderDevicesData()}
+            </View>
+          </View>
+        </Modal>
+
+
         <Modal animationType="slide" transparent visible={modalOpen}>
           <View style={styles.modalContainer}>
             <Pressable

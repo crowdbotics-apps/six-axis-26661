@@ -58,18 +58,6 @@ const BottomTabStack = props => {
         options={{
           tabBarIcon: ({color, size}) => (
             <View style={[styles.BarStyle]}>
-              <Image style={[styles.iconImage]} source={Images.workOut} />
-            </View>
-          ),
-          headerShown: false,
-        }}
-        name="WorkOut"
-        component={WorkOut}
-      />
-      <Tab.Screen
-        options={{
-          tabBarIcon: ({color, size}) => (
-            <View style={[styles.BarStyle]}>
               <Image style={[styles.iconImage]} source={Images.bluetooth} />
             </View>
           ),
@@ -77,6 +65,18 @@ const BottomTabStack = props => {
         }}
         name="Bluetooth"
         component={Bluethooth}
+      />
+      <Tab.Screen
+        options={{
+          tabBarIcon: ({color, size}) => (
+            <View style={[styles.BarStyle]}>
+              <Image style={[styles.iconImage]} source={Images.workOut} />
+            </View>
+          ),
+          headerShown: false,
+        }}
+        name="WorkOut"
+        component={WorkOut}
       />
       <Tab.Screen
         options={{

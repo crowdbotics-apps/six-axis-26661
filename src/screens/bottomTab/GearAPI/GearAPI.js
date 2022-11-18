@@ -37,6 +37,7 @@ class GearAPIManager {
                 buttonPositive: 'OK'
             }
             );
+            console.log('PERMISSION', granted)
             return (granted === PermissionsAndroid.RESULTS.GRANTED);
         }
 
@@ -56,7 +57,6 @@ class GearAPIManager {
         };
 
         this.#HandleResponseMessage = function (char, msg) {
-        console.log("🚀 ~ file: GearAPI.js ~ line 59 ~ GearAPIManager ~ constructor ~ msg", msg)
             if (msg.messageType != NotificationMessageType.Response)
                 return;
             
@@ -66,7 +66,6 @@ class GearAPIManager {
         };
 
         this.#IsSupportedDevice = function (device) {
-            return true;
             return (
                 device &&
                 device.name == 'SlidePanel' &&
@@ -173,10 +172,12 @@ class GearAPIManager {
             this.#ApplyCallback(this, this.#events.onGearConnect, device);
             return device.discoverAllServicesAndCharacteristics();
         }).then((device) => {
+            console.log('DEVICE SERVICES', device.services());
             return device.services();
         }).then((services) => {
             services.forEach(async service => {
                 device.characteristicsForService(service.uuid).then((chars) => {
+                    console.log('CHARS', char)
                     for (var i in chars) {
                         var char = chars[i];
                         if (char == null ||
@@ -196,7 +197,7 @@ class GearAPIManager {
                                         if (char != null) {
                                             var bufferData = Buffer.from(char.value, 'base64').buffer;
                                             var msg = NotificationMessage.FromBuffer(bufferData);
-                                            if (this.communicationLog) console.log('Packet received:::: ',JSON.stringify(msg));
+                                            if (this.communicationLog) console.log('Packet received: ' + msg.hexdecimal);
                                             if (msg.messageType == NotificationMessageType.Update) {
                                                 if (msg.isVibrating && this.#vibrateOFF)
                                                     this.VibrateOFF(device);
@@ -214,7 +215,7 @@ class GearAPIManager {
                 });
             });
         }).catch((error) => {
-                // Handle errors
+                console.log('connect error', error)
             });
     }
 
